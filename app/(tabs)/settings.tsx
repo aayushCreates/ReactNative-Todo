@@ -5,13 +5,13 @@ import ProgessStats from "@/components/ProgessStats";
 import useTheme from "@/hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Settings = () => {
   const { colors } = useTheme();
-  const settingsStyles = createSettingsStyles(colors);
+  const settingsStyles = useMemo(() => createSettingsStyles(colors), [colors]);
 
   return (
     <LinearGradient
@@ -20,25 +20,28 @@ const Settings = () => {
     >
       <SafeAreaView style={settingsStyles.safeArea}>
         <View style={settingsStyles.header}>
-        <View style={settingsStyles.titleContainer}>
-          <LinearGradient colors={colors.gradients.primary} style={settingsStyles.iconContainer}>
+          <View style={settingsStyles.titleContainer}>
+            <LinearGradient
+              colors={colors.gradients.primary}
+              style={settingsStyles.iconContainer}
+            >
               <Ionicons name="settings" size={28} color="#ffffff" />
-          </LinearGradient>
-          <Text style={settingsStyles.title}>
-            Settings
-          </Text>
-        </View>
+            </LinearGradient>
+            <Text style={settingsStyles.title}>Settings</Text>
+          </View>
         </View>
 
-        <ScrollView style={settingsStyles.scrollView} contentContainerStyle={settingsStyles.content}
-        showsVerticalScrollIndicator={false}>
-
-          <ProgessStats />
-          <Preferences />
-          <DangerZone />
-
-        </ScrollView>
-
+        <View style={{ flex: 1 }}>
+          <ScrollView
+            style={settingsStyles.scrollView}
+            contentContainerStyle={[settingsStyles.content, { flexGrow: 1 }]}
+            showsVerticalScrollIndicator={false}
+          >
+            <ProgessStats />
+            <Preferences />
+            <DangerZone />
+          </ScrollView>
+        </View>
       </SafeAreaView>
     </LinearGradient>
   );

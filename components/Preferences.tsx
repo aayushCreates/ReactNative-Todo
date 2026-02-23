@@ -2,7 +2,7 @@ import { createSettingsStyles } from "@/assets/styles/settings.styles";
 import useTheme from "@/hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Switch, Text, View } from "react-native";
 
 const Preferences = () => {
@@ -11,7 +11,7 @@ const Preferences = () => {
   const [isAutoSync, setIsAutoSync] = useState<boolean>(true);
 
   const { colors, isDarkMode, toggleDarkMode } = useTheme();
-  const settingsStyles = createSettingsStyles(colors);
+  const settingsStyles = useMemo(() => createSettingsStyles(colors), [colors]);
 
   return (
     <LinearGradient

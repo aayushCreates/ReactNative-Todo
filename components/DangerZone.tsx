@@ -4,13 +4,14 @@ import useTheme from "@/hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
+import { useMemo } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 
 const DangerZone = () => {
-    const { colors } = useTheme();
-    const settingsStyle = createSettingsStyles(colors);
+  const { colors } = useTheme();
+  const settingsStyles = useMemo(() => createSettingsStyles(colors), [colors]);
 
-    const clearAllTodos = useMutation(api.todos.clearAllTodos);
+  const clearAllTodos = useMutation(api.todos.clearAllTodos);
 
     const handleResetApp = async ()=> {
         Alert.alert(
@@ -43,18 +44,23 @@ const DangerZone = () => {
 
   return (
     <LinearGradient colors={colors.gradients.surface} style={settingsStyle.section}>
-      <Text style={settingsStyle.sectionTitleDanger}>DangerZone</Text>
+      <Text style={settingsStyles.sectionTitleDanger}>Danger Zone</Text>
 
-      <TouchableOpacity style={[settingsStyle.actionButton, {
-        borderBottomWidth: 0
-      }]}
-      onPress={handleResetApp}
-      activeOpacity={0.7}>
-        <View style={settingsStyle.actionButton}>
-        <LinearGradient colors={colors.gradients.danger} style={settingsStyle.actionButton}>
-            <Ionicons name="trash" size={18} color={colors.textMuted} />
-        </LinearGradient>
+      <TouchableOpacity
+        style={[settingsStyles.actionButton, { borderBottomWidth: 0 }]}
+        onPress={handleResetApp}
+        activeOpacity={0.7}
+      >
+        <View style={settingsStyles.actionLeft}>
+          <LinearGradient
+            colors={colors.gradients.danger}
+            style={settingsStyles.actionIcon}
+          >
+            <Ionicons name="trash" size={18} color="#fff" />
+          </LinearGradient>
+          <Text style={settingsStyles.actionTextDanger}>Reset All Data</Text>
         </View>
+        <Ionicons name="chevron-forward" size={20} color={colors.danger} />
       </TouchableOpacity>
     </LinearGradient>
   );
