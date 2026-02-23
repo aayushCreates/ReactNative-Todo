@@ -9,7 +9,7 @@ import useTheme from "@/hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -25,7 +25,7 @@ type Todo = Doc<"todos">;
 
 export default function Index() {
   const { toggleDarkMode, colors } = useTheme();
-  const homeStyles = createHomeStyles(colors);
+  const homeStyles = useMemo(() => createHomeStyles(colors), [colors]);
 
   const todos = useQuery(api.todos.getTodos);
   const toggleTodo = useMutation(api.todos.toggleState);
@@ -35,7 +35,7 @@ export default function Index() {
   const [editingText, setEditingText] = useState<string>("");
   const [editingId, setEditingId] = useState<Id<"todos"> | null>(null);
 
-  const handleToggleTodo = async (id: Id<"todos">) => {
+  const handleToggleTodo = useCallback(async (id: Id<"todos">) => {
     try {
       await toggleTodo({
         id,
@@ -44,13 +44,13 @@ export default function Index() {
       console.log("Error in toggling todo: ", err);
       Alert.alert("Error", "Error in toggle todo");
     }
-  };
+  }, [toggleTodo]);
 
-  const handleDeleteTodo = async (id: Id<"todos">) => {
+  const handleDeleteTodo = useCallback(async (id: Id<"todos">) => {
     try {
       Alert.alert("Delete Todo", "Are you sure you want to delete this todo?", [
         {
-          text: "Cencel",
+          text: "Cancel",
           style: "cancel",
         },
         {
@@ -66,19 +66,19 @@ export default function Index() {
       console.log("Error in deleting todo: ", err);
       Alert.alert("Error", "Error in delete todo");
     }
-  };
+  }, [deleteTodo]);
 
-  const handleEditTodo = async (todo: Todo) => {
+  const handleEditTodo = useCallback((todo: Todo) => {
     setEditingId(todo._id);
     setEditingText(todo.text);
-  };
+  }, []);
 
-  const handleCancelEdit = async () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingId(null);
     setEditingText("");
-  };
+  }, []);
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = useCallback(async () => {
     if (!editingId || !editingText.trim()) return;
 
     try {
@@ -93,9 +93,9 @@ export default function Index() {
       console.log("Error in editing todo: ", err);
       Alert.alert("Error", "Error in edit todo");
     }
-  };
+  }, [editingId, editingText, editTodo]);
 
-  const renderTodoItem = ({ item }: { item: Todo }) => {
+  const renderTodoItem = useCallback(({ item }: { item: Todo }) => {
     const isEditing = editingId !== null && editingId === item._id;
 
     return (
@@ -218,7 +218,17 @@ export default function Index() {
         </LinearGradient>
       </View>
     );
-  };
+  }, [
+    editingId,
+    editingText,
+    homeStyles,
+    colors,
+    handleToggleTodo,
+    handleSaveEdit,
+    handleCancelEdit,
+    handleEditTodo,
+    handleDeleteTodo,
+  ]);
 
   const isLoading = todos === undefined;
   if (isLoading) {
@@ -240,6 +250,7 @@ export default function Index() {
           data={todos}
           renderItem={renderTodoItem}
           keyExtractor={(item) => item._id}
+          extraData={{ editingId, editingText }}
           style={homeStyles.todoList}
           contentContainerStyle={homeStyles.todoListContent}
           ListEmptyComponent={<EmptyState />}
